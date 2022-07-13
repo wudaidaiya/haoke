@@ -1,9 +1,16 @@
 <template>
-  <div></div>
+  <div>
+    <router-view></router-view>
+  </div>
 </template>
 
 <script>
-export default {}
+import request from '@/utils/request'
+export default {
+  created() {
+    console.dir(request)
+  }
+}
 </script>
 
 <style></style>
