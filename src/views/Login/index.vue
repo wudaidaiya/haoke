@@ -1,21 +1,26 @@
 <template>
   <div>
     <!-- 导航栏 -->
-    <van-nav-bar title="账号登录" left-arrow @click-left="onClickLeft" />
+    <van-nav-bar
+      :fixed="true"
+      title="账号登录"
+      left-arrow
+      @click-left="onClickLeft"
+    />
     <!-- 注册登录 -->
     <van-form @submit="onSubmit">
       <van-field
         v-model="user.username"
-        name="用户名"
+        name="username"
         placeholder="请输入账户"
-        :rules="[{ required: true }]"
+        :rules="userF.username"
       />
       <van-field
         v-model="user.password"
         type="password"
-        name="密码"
+        name="password"
         placeholder="请输入密码"
-        :rules="[{ required: true }]"
+        :rules="userF.password"
       />
       <div style="margin: 16px">
         <van-button class="btn" block native-type="submit">登录</van-button>
@@ -33,6 +38,28 @@ export default {
       user: {
         username: '',
         password: ''
+      },
+      userF: {
+        username: [
+          {
+            required: true,
+            message: '账号不能为空'
+          },
+          {
+            pattern: /^[A-Za-z0-9]{3,9}$/,
+            message: '账号错误'
+          }
+        ],
+        password: [
+          {
+            required: true,
+            message: '密码不能为空'
+          },
+          {
+            pattern: /^[A-Za-z0-9]{6,12}$/,
+            message: '密码错误'
+          }
+        ]
       }
     }
   },
@@ -41,8 +68,6 @@ export default {
       this.$router.back()
     },
     async onSubmit() {
-      const user = this.user
-
       // 登陆提示
       this.$toast.loading({
         message: '登录中...',
@@ -51,13 +76,14 @@ export default {
       })
       // 成功
       try {
-        const res = await login(user)
-        console.log('登陆成功', res)
-        this.$toast.success('登陆成功')
+        const { data } = await login(this.user)
+        // console.log(res)
+        this.$store.commit('setUser', data.body)
         this.$router.back()
+        this.$toast.success('登陆成功')
       } catch (err) {
         // 失败
-        if (err.response.status === 500) {
+        if (err.response.status === 400) {
           this.$toast.fail('账户或密码错误')
         } else {
           this.$toast.fail('登陆失败')

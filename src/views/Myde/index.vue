@@ -3,30 +3,48 @@
     <!-- 背景图 -->
     <div class="box">
       <img
+        v-show="isShow === user"
         class="img"
         src="http://liufusong.top:8080/img/profile/bg.png"
+        alt="背景图"
+      />
+      <img
+        v-show="!(isShow === user)"
+        class="img"
+        src="http://liufusong.top:8080/img/avatar.png"
         alt="背景图"
       />
       <!-- 阴影盒子 -->
       <div class="tourist">
         <div class="tourist_son">
           <img
+            v-if="user"
+            class="img"
+            :src="`${imgs}${obj.avatar}`"
+            alt="icon"
+          />
+          <img
+            v-else
             class="img"
             src="http://liufusong.top:8080/img/profile/avatar.png"
             alt="icon"
           />
         </div>
-        <div class="box1">游客</div>
-        <van-button class="btn1" @click="clickFn">去登录</van-button>
+        <div class="box1">{{ obj.nickname }}</div>
+        <van-button v-if="!user" class="btn1" @click="clickFn"
+          >去登录</van-button
+        >
+        <van-button v-else class="btn1" @click="clickFnn">退出</van-button>
+        <p v-if="user">编辑资料<van-icon name="play" /></p>
       </div>
     </div>
     <!-- 宫格 -->
-    <van-grid :border="false" :column-num="3" class="grid">
-      <van-grid-item>
+    <van-grid :border="false" :column-num="3" class="grid" :clickable="true">
+      <van-grid-item @click="MyFn">
         <span><van-icon name="star-o" /></span>
         <p class="txt">我的收藏</p>
       </van-grid-item>
-      <van-grid-item>
+      <van-grid-item @click="Myrental">
         <span><van-icon name="wap-home-o" /></span>
         <p class="txt">我的出租</p>
       </van-grid-item>
@@ -59,22 +77,85 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+// 2 导入请求方法
+import { userName } from '@/api/user'
+
 export default {
+  data() {
+    return {
+      isShow: null,
+      userInfo: {},
+      obj: {},
+      imgs: 'http://liufusong.top:8080'
+    }
+  },
   name: 'MydeIndex',
+  computed: {
+    ...mapState(['user'])
+  },
+  created() {
+    // 如果存在token则执行
+    if (this.user) {
+      this.loadUserInfo()
+    }
+  },
   methods: {
     clickFn() {
       this.$router.push('/login')
+    },
+    clickFnn() {
+      this.$dialog
+        .confirm({
+          title: '标题',
+          message: '弹窗内容'
+        })
+        .then(() => {
+          this.$router.push('/login')
+          // 清除token
+          this.$store.commit('setUser', null)
+        })
+        .catch(() => {})
+    },
+    async loadUserInfo() {
+      try {
+        // 使用userName
+        const res = await userName()
+        console.log(res)
+        // 接收数据
+        this.obj = res.data.body
+      } catch (err) {
+        this.$toast('获取数据失败')
+      }
+    },
+    MyFn() {
+      if (this.user) {
+        this.$router.push('/collection')
+      } else {
+        this.$router.push('/login')
+      }
+    },
+    Myrental() {
+      if (this.user) {
+        this.$router.push('/rental')
+      } else {
+        this.$router.push('/login')
+      }
     }
   }
 }
 </script>
 
 <style scoped lang="less">
+.myde-container {
+  margin-bottom: 100px;
+}
 // 上方大盒子
 .box {
   min-height: 600px;
   position: relative;
 }
+
 // 阴影盒子
 .tourist {
   position: absolute;

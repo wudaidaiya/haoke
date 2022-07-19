@@ -38,6 +38,26 @@ const routes = [
         component: () => import('@/views/Myde')
       }
     ]
+  },
+  {
+    path: '/collection',
+    name: 'collection',
+    component: () => import('@/views/Collection')
+  },
+  {
+    path: '/collfn',
+    name: 'collfn',
+    component: () => import('@/views/CollFn')
+  },
+  {
+    path: '/citylist',
+    name: 'citylist',
+    component: () => import('@/views/Citylist')
+  },
+  {
+    path: '/rental',
+    name: 'rental',
+    component: () => import('@/views/Rental')
   }
 ]
 
